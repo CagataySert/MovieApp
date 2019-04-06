@@ -20,16 +20,18 @@ const validate = data => {
   return { errors, isValid };
 };
 
-mongodb.MongoClient.connect(dbUrl, (err, db) =>  {
-  
+mongodb.MongoClient.connect(dbUrl, (err, db) => {
+
   if (err) {
     throw new Error(err);
   }
 
   app.get('/api/movies', (req, res) => {
-    db.collection('movies').find({}).toArray((err, movies) => {
-      res.json({ movies });
-    });
+    setTimeout(() => {
+      db.collection('movies').find({}).toArray((err, movies) => {
+        res.json({ movies });
+      });
+    }, 2000);
   });
 
   app.post('/api/movies', (req, res) => {
@@ -38,7 +40,7 @@ mongodb.MongoClient.connect(dbUrl, (err, db) =>  {
       const { title, cover } = req.body;
       db.collection('movies').insert({ title, cover }, (err, result) => {
         if (err) {
-          res.status(500).json({ errors: { global: "Something went wrong" }});
+          res.status(500).json({ errors: { global: "Something went wrong" } });
         } else {
           res.json({ movie: result.ops[0] });
         }
@@ -58,7 +60,7 @@ mongodb.MongoClient.connect(dbUrl, (err, db) =>  {
         { $set: { title, cover } },
         { returnOriginal: false },
         (err, result) => {
-          if (err) { res.status(500).json({ errors: { global: err }}); return; }
+          if (err) { res.status(500).json({ errors: { global: err } }); return; }
 
           res.json({ movie: result.value });
         }
@@ -76,7 +78,7 @@ mongodb.MongoClient.connect(dbUrl, (err, db) =>  {
 
   app.delete('/api/movies/:_id', (req, res) => {
     db.collection('movies').deleteOne({ _id: new mongodb.ObjectId(req.params._id) }, (err, r) => {
-      if (err) { res.status(500).json({ errors: { global: err }}); return; }
+      if (err) { res.status(500).json({ errors: { global: err } }); return; }
 
       res.json({});
     })
